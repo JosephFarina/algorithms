@@ -1,60 +1,55 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import edu.princeton.cs.algs4.StdRandom;
+import edu.princeton.cs.algs4.StdStats;
+import edu.princeton.cs.algs4.Stopwatch;
 
 public class PercolationStats {
     private int trials;
     private int gridSize;
-    List<Integer> trialRecords = new ArrayList<Integer>();
-    private Percolation perc;
+    private double[] results;
+    private double[] timeResults;
+    private Stopwatch stopwatch;
 
-    public PercolationStats(int n, int trials) {
+    public PercolationStats(int gridSize, int trials) {
+        this.gridSize = gridSize;
         this.trials = trials;
-        this.gridSize = n;
+        runTest();
     }
 
-    private void runAllTests() {
+    private void runTest() {
+        results = new double[trials];
+        timeResults = new double[trials];
         for (int i = 0; i < trials; i++) {
-            singlePercolate();
+            stopwatch = new Stopwatch();
+            int openSites = openSitesTillPercThenGetSiteCount();
+            timeResults[i] = stopwatch.elapsedTime();
+            results[i] = (double) openSites / (double) (gridSize * gridSize);
         }
-        System.out.print(trialRecords);
+        postTestAnalytics();
     }
 
-    private void singlePercolate() {
-        perc = new Percolation(gridSize);
-        int row, col, count = 0;
-        while(!perc.percolates()) {
-            Random rand = new Random();
-            row = rand.nextInt(gridSize);
-            col = rand.nextInt(gridSize);
-            perc.open(row, col);
-            count++;
-
+    private int openSitesTillPercThenGetSiteCount() {
+        Percolation perc = new Percolation(gridSize);
+        int openSites = 0;
+        stopwatch = new Stopwatch();
+        while (!perc.percolates()) {
+            int row = StdRandom.uniform(0, gridSize);
+            int col = StdRandom.uniform(0, gridSize);
+            if (!perc.isOpen(row, col)) {
+                perc.open(row, col);
+                openSites++;
+            }
         }
-        int percentCompleted = count / (gridSize * gridSize);
-        System.out.println(count + " " + (double) count / (gridSize * gridSize));
-        trialRecords.add(percentCompleted);
+        return openSites;
     }
 
-    // sample mean of percolation threshold
-    public double mean(){
-        return 0.0;
+    private void postTestAnalytics() {
+        System.out.println("The grid size being tested is: " + gridSize + " X " + gridSize);
+        System.out.println("The number of trials being ran: " + trials);
+        System.out.println("The average time a test took to run: " + (float) StdStats.mean(timeResults) + " seconds");
+        System.out.println("The average threshold till it perculated: " + (float) StdStats.mean(results));
     }
-    // sample standard deviation of percolation threshold
-    public double stddev()  {
-        return 0.0;
-    }
-    // low  endpoint of 95% confidence interval
-    public double confidenceLo() {
-        return 0.0;
-    }
-    // high endpoint of 95% confidence interval
-    public double confidenceHi()  {
-        return 0.0;
-    }
-    // test client (described below)
-    public static void main(String[] args)  {
-        PercolationStats p = new PercolationStats(20, 50000);
-        p.runAllTests();
+
+    public static void main(String[] args) {
+        PercolationStats pStats = new PercolationStats(10, 1000);
     }
 }
