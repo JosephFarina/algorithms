@@ -30,7 +30,6 @@ public class PercolationStats {
     private int openSitesTillPercThenGetSiteCount() {
         Percolation perc = new Percolation(gridSize);
         int openSites = 0;
-        stopwatch = new Stopwatch();
         while (!perc.percolates()) {
             int row = StdRandom.uniform(0, gridSize);
             int col = StdRandom.uniform(0, gridSize);
